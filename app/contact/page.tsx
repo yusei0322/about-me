@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Window from "@/components/os/Window";
-import { pages } from "@/src/data/content";
+import { contact, pages } from "@/src/data/content";
+import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
   title: pages.contact.title,
@@ -9,11 +10,8 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <Window title={pages.contact.windowTitle}>
-      <div className="page-placeholder">
-        <h1 className="page-placeholder__title">{pages.contact.heading}</h1>
-        <p className="page-placeholder__note">{pages.contact.note}</p>
-      </div>
+    <Window title={contact.windowTitle}>
+      <ContactForm />
     </Window>
   );
 }

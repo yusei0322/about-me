@@ -562,3 +562,89 @@ export function findHobby(slug: string): Hobby | undefined {
    slug をリネームしてもナビのリンク先が自動で正しくなる。 */
 const hobbyNav = nav.find((item) => item.href.startsWith("/hobby"));
 if (hobbyNav) hobbyNav.href = `/hobby/${hobbies[0].slug}`;
+
+/* ================================================================
+   /contact（renraku）ページ。
+   Win95ダイアログ風のお問い合わせフォーム。送信機能は不要（課題要件）で、
+   「送信」時はJSでバリデーションのみ行い、結果をモーダルで表示する。
+   ================================================================ */
+export type ContactSubject = { value: string; label: string };
+
+export type SnsLink = {
+  label: string;
+  /** TODO: 暫定ダミーURL。本人のアカウントURLに差し替える */
+  url: string;
+  /** 画面に出す表示名（@ハンドル等） */
+  handle: string;
+};
+
+export const contact = {
+  windowTitle: pages.contact.windowTitle,
+  heading: "renraku",
+  lead: "お仕事のご相談・ご感想など、お気軽にどうぞ。",
+  /** 静的サイトのため実送信されない旨の注記 */
+  notice:
+    "※ このサイトは静的サイトのデモです。入力チェックのみ行い、実際には送信されません。",
+
+  /** フォーム各項目の文言 */
+  fields: {
+    name: {
+      id: "contact-name",
+      label: "お名前",
+      placeholder: "例）ざいど",
+      required: true,
+    },
+    email: {
+      id: "contact-email",
+      label: "返信先メールアドレス",
+      placeholder: "例）you@example.com",
+      required: true,
+    },
+    subject: {
+      id: "contact-subject",
+      label: "用件",
+      required: false,
+      // TODO: 用件の選択肢は必要に応じて調整する
+      options: [
+        { value: "", label: "選択してください" },
+        { value: "work", label: "お仕事の相談" },
+        { value: "message", label: "感想・メッセージ" },
+        { value: "other", label: "その他" },
+      ] satisfies ContactSubject[],
+    },
+    body: {
+      id: "contact-body",
+      label: "本文",
+      placeholder: "ご用件をご記入ください。",
+      required: true,
+    },
+  },
+
+  submitLabel: "送信",
+
+  /** バリデーションメッセージ（エラーダイアログに列挙する） */
+  validation: {
+    nameRequired: "お名前を入力してください。",
+    emailRequired: "返信先メールアドレスを入力してください。",
+    emailInvalid: "メールアドレスの形式が正しくありません。",
+    bodyRequired: "本文を入力してください。",
+  },
+
+  /** 結果ダイアログの文言 */
+  dialogs: {
+    errorTitle: "入力エラー",
+    errorIntro: "次の項目を確認してください：",
+    successTitle: "renraku",
+    successMessage: "送信しました。（デモのため実際には送信されません）",
+    closeLabel: "OK",
+  },
+
+  /** SNS導線（URLは暫定ダミー） */
+  snsHeading: "SNS",
+  sns: [
+    // TODO: 実際のアカウントURLに差し替える
+    { label: "X (Twitter)", url: "https://example.com/", handle: "@zaido_dummy" },
+    { label: "Instagram", url: "https://example.com/", handle: "@zaido_dummy" },
+    { label: "GitHub", url: "https://example.com/", handle: "zaido-dummy" },
+  ] satisfies SnsLink[],
+} as const;
