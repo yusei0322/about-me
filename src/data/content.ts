@@ -9,6 +9,23 @@ export const site = {
   tagline: "an operating system about me",
 } as const;
 
+/**
+ * 画像の出典。'own'=自作、それ以外はフリー素材サービス名。
+ * 採点の「著作権上Web利用可能」対応として全画像に必ず持たせる。
+ * TODO: フリー素材に差し替えたら該当サービス名へ更新すること。
+ */
+export type ImageSource = "own" | "unsplash" | "pexels" | "pixabay";
+
+/** 出典付きの画像アセット（src の basePath は Image 側で付与） */
+export type ImageAsset = {
+  /** public/ 以下のパス */
+  src: string;
+  /** 代替テキスト（必須） */
+  alt: string;
+  /** 出典管理用 */
+  source: ImageSource;
+};
+
 /** ナビゲーション項目（ヘッダー・フッター・ハンバーガーで共用） */
 export type NavItem = {
   /** 遷移先パス（basePath は next/link が自動付与するため付けない） */
@@ -115,7 +132,8 @@ export const about = {
     // TODO: 本人の写真 or アバター画像に差し替える
     src: "/about/placeholder-avatar.svg",
     alt: "ざいどのアバター画像（暫定プレースホルダ）",
-  },
+    source: "own",
+  } satisfies ImageAsset,
 
   /* 本文は「メモ帳の行」の集合。タイプライター演出で1行ずつ表示する。
      各セクションは label(見出し) と lines(本文行) を持つ。 */
@@ -239,6 +257,8 @@ export type WorkPreview = {
   src: string;
   /** 代替テキスト(必須) */
   alt: string;
+  /** 画像の出典 */
+  source: ImageSource;
   /** スライド内のキャプション見出し */
   title: string;
   /** キャプション本文 */
@@ -255,24 +275,28 @@ export const worksPreview = {
     {
       src: "/works/placeholder-portfolio.svg",
       alt: "ポートフォリオサイトのトップ画面のプレビュー（暫定プレースホルダ）",
+      source: "own",
       title: "portfolio.exe",
       caption: "このサイト自体。ZaidOS をテーマにした自己紹介。",
     },
     {
       src: "/works/placeholder-voxel-world.svg",
       alt: "ボクセルで作った3Dワールドのプレビュー（暫定プレースホルダ）",
+      source: "own",
       title: "voxel_world",
       caption: "three.js で組んだ小さな箱庭ワールド。",
     },
     {
       src: "/works/placeholder-brand-kit.svg",
       alt: "ブランドキット（配色とロゴ）のプレビュー（暫定プレースホルダ）",
+      source: "own",
       title: "brand_kit",
       caption: "配色・タイポ・ロゴをまとめたブランド設計。",
     },
     {
       src: "/works/placeholder-motion-study.svg",
       alt: "モーション習作のプレビュー（暫定プレースホルダ）",
+      source: "own",
       title: "motion_study",
       caption: "GSAP によるスクロール連動アニメーションの習作。",
     },
@@ -286,3 +310,255 @@ export const worksPreview = {
     label: "sakuhin をすべて見る →",
   },
 } as const;
+
+/* ================================================================
+   /works（sakuhin フォルダ）ページ。
+   作品をファイルアイコンのグリッドで並べ、クリックで詳細ウィンドウ
+   （モーダル）が開く。文言・画像はここに集約。
+   ※ TODO: 内容と画像は後で本人の実作品へ差し替える。
+   ================================================================ */
+export type WorkFileKind = "exe" | "folder" | "image" | "text";
+
+export type WorkItem = {
+  /** 一意なID（モーダルの対象特定に使う） */
+  id: string;
+  /** デスクトップ上のファイル名（拡張子込み・日本語不可） */
+  fileName: string;
+  /** アイコンの種類（拡張子で見た目を変える） */
+  kind: WorkFileKind;
+  /** 詳細ウィンドウのタイトル・見出し */
+  title: string;
+  /** 詳細の本文 */
+  description: string;
+  /** 使用技術などのメタ情報（行単位） */
+  meta: string[];
+  /** 詳細ウィンドウに出す画像（1点） */
+  image: ImageAsset;
+};
+
+export const works = {
+  windowTitle: pages.works.windowTitle,
+  heading: "sakuhin",
+  lead: "アイコンをクリックすると詳細ウィンドウが開きます。",
+  /** モーダルを閉じるボタンのラベル */
+  closeLabel: "閉じる",
+  items: [
+    {
+      id: "portfolio",
+      fileName: "portfolio.exe",
+      kind: "exe",
+      title: "portfolio.exe — ZaidOS",
+      description:
+        "このサイト自体。架空のOS「ZaidOS」をテーマに、TOPの一人称3D体験から下層のウィンドウUIまでを一貫した世界観でつくった自己紹介ポートフォリオ。",
+      meta: ["Next.js / TypeScript", "three.js / GSAP", "自作CSS（リセットCSSから）"],
+      image: {
+        src: "/works/placeholder-portfolio.svg",
+        alt: "ポートフォリオサイトのトップ画面（暫定プレースホルダ）",
+        source: "own",
+      },
+    },
+    {
+      id: "voxel-world",
+      fileName: "voxel_world",
+      kind: "folder",
+      title: "voxel_world",
+      description:
+        "three.js で組んだ小さな箱庭ワールド。ボクセル（立方体）を並べて地形や建物をつくる実験。",
+      meta: ["three.js", "WebGL"],
+      image: {
+        src: "/works/placeholder-voxel-world.svg",
+        alt: "ボクセルで作った3Dワールド（暫定プレースホルダ）",
+        source: "own",
+      },
+    },
+    {
+      id: "brand-kit",
+      fileName: "brand_kit.png",
+      kind: "image",
+      title: "brand_kit.png",
+      description:
+        "配色・タイポグラフィ・ロゴをまとめたブランド設計。ZaidOSの見た目の土台になっている。",
+      meta: ["Design", "配色設計"],
+      image: {
+        src: "/works/placeholder-brand-kit.svg",
+        alt: "ブランドキット（配色とロゴ）（暫定プレースホルダ）",
+        source: "own",
+      },
+    },
+    {
+      id: "motion-study",
+      fileName: "motion_study",
+      kind: "folder",
+      title: "motion_study",
+      description:
+        "GSAP によるスクロール連動アニメーションの習作。数値を動かすだけで演出を組み立てる練習。",
+      meta: ["GSAP", "ScrollTrigger"],
+      image: {
+        src: "/works/placeholder-motion-study.svg",
+        alt: "モーション習作（暫定プレースホルダ）",
+        source: "own",
+      },
+    },
+    {
+      id: "readme",
+      fileName: "readme.txt",
+      kind: "text",
+      title: "readme.txt",
+      description:
+        "制作メモ。作品はすべて暫定プレースホルダで、後で本人の実作品へ差し替える予定。",
+      meta: ["TODO: 実作品に差し替え"],
+      image: {
+        src: "/works/placeholder-portfolio.svg",
+        alt: "readmeのプレビュー（暫定プレースホルダ）",
+        source: "own",
+      },
+    },
+  ] satisfies WorkItem[],
+} as const;
+
+/* ================================================================
+   趣味ページ（動的ルート app/hobby/[slug]）のデータ。
+   ここに1エントリ追記するだけで趣味ページが1枚増える。
+   題材が決まったら slug 文字列を書き換えるとURLも変わる（フォルダ操作不要）。
+
+   kind で表示スタイルを選ぶ:
+     "ranking" … 画像 + 紹介文 + 推しランキング（JS: クリックで詳細トグル）
+     "gallery" … 画像 + 紹介文 + タグで絞り込めるギャラリー（JS: フィルタ）
+
+   ※ TODO: 題材・文言・画像はすべて仮。後で本人の趣味に差し替える。
+   ================================================================ */
+export type RankingEntry = {
+  rank: number;
+  name: string;
+  note: string;
+};
+
+export type GalleryItem = {
+  image: ImageAsset;
+  caption: string;
+  /** 絞り込み用タグ（filters のいずれか） */
+  tags: string[];
+};
+
+export type Hobby = {
+  /** URL スラッグ（英小文字・ケバブケース）。題材確定時はここを変える */
+  slug: string;
+  /** ナビ/タスクバー用の短いラベル */
+  label: string;
+  /** ウィンドウのタイトルバー */
+  windowTitle: string;
+  /** <title> */
+  title: string;
+  /** meta description */
+  description: string;
+  /** 表示スタイル */
+  kind: "ranking" | "gallery";
+  /** 冒頭の紹介文 */
+  intro: { heading: string; body: string };
+  /** メイン画像（必須1点） */
+  hero: ImageAsset;
+  /** kind:"ranking" のとき使う */
+  ranking?: RankingEntry[];
+  /** kind:"gallery" のとき使う絞り込みタグ */
+  filters?: string[];
+  /** kind:"gallery" のとき使う画像一覧 */
+  gallery?: GalleryItem[];
+};
+
+export const hobbies: Hobby[] = [
+  {
+    // TODO: 題材確定時に slug を実際の趣味名へ（例: "music"）変更する
+    slug: "first",
+    label: "hobby",
+    windowTitle: "hobby/first",
+    title: "hobby/first — ZaidOS",
+    description: "好きな音楽についての紹介ページ（仮・準備中）。",
+    kind: "ranking",
+    intro: {
+      heading: "好きな音楽",
+      // TODO: 実際の趣味紹介に書き換える
+      body: "ここは仮の題材（音楽）です。よく聴くアーティストやジャンルを、ランキング形式で紹介する構成にしています。",
+    },
+    hero: {
+      src: "/hobby/placeholder-music.svg",
+      alt: "音楽をイメージしたイラスト（暫定プレースホルダ）",
+      source: "own",
+    },
+    ranking: [
+      // TODO: 実際の「推し」に書き換える
+      { rank: 1, name: "アーティストA", note: "初めて自分で買ったアルバム。" },
+      { rank: 2, name: "アーティストB", note: "作業中によく流している。" },
+      { rank: 3, name: "アーティストC", note: "ライブに行ってみたい。" },
+      { rank: 4, name: "ジャンルD", note: "最近開拓中のジャンル。" },
+    ],
+  },
+  {
+    // TODO: 題材確定時に slug を実際の趣味名へ（例: "photo"）変更する
+    slug: "second",
+    label: "hobby",
+    windowTitle: "hobby/second",
+    title: "hobby/second — ZaidOS",
+    description: "撮った写真を並べたギャラリーページ（仮・準備中）。",
+    kind: "gallery",
+    intro: {
+      heading: "写真ギャラリー",
+      // TODO: 実際の趣味紹介に書き換える
+      body: "ここは仮の題材（写真）です。撮りためた写真をタグで絞り込めるギャラリーにしています。",
+    },
+    hero: {
+      src: "/hobby/placeholder-photo-01.svg",
+      alt: "写真ギャラリーのメイン画像（暫定プレースホルダ）",
+      source: "own",
+    },
+    // TODO: 実際のタグ・写真に差し替える
+    filters: ["街", "自然", "夜"],
+    gallery: [
+      {
+        image: {
+          src: "/hobby/placeholder-photo-01.svg",
+          alt: "街の風景の写真（暫定プレースホルダ）",
+          source: "own",
+        },
+        caption: "街の風景",
+        tags: ["街"],
+      },
+      {
+        image: {
+          src: "/hobby/placeholder-photo-02.svg",
+          alt: "自然の風景の写真（暫定プレースホルダ）",
+          source: "own",
+        },
+        caption: "山と空",
+        tags: ["自然"],
+      },
+      {
+        image: {
+          src: "/hobby/placeholder-photo-03.svg",
+          alt: "夜景の写真（暫定プレースホルダ）",
+          source: "own",
+        },
+        caption: "夜のネオン",
+        tags: ["夜", "街"],
+      },
+      {
+        image: {
+          src: "/hobby/placeholder-photo-04.svg",
+          alt: "夜の自然の写真（暫定プレースホルダ）",
+          source: "own",
+        },
+        caption: "星空",
+        tags: ["夜", "自然"],
+      },
+    ],
+  },
+];
+
+/** slug から趣味データを引く（無ければ undefined） */
+export function findHobby(slug: string): Hobby | undefined {
+  return hobbies.find((h) => h.slug === slug);
+}
+
+/* ナビの hobby 項目は先頭の趣味の slug に追従させる。
+   slug をリネームしてもナビのリンク先が自動で正しくなる。 */
+const hobbyNav = nav.find((item) => item.href.startsWith("/hobby"));
+if (hobbyNav) hobbyNav.href = `/hobby/${hobbies[0].slug}`;

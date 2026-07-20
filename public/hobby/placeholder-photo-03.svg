@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="neon night photo placeholder">
+  <rect width="600" height="400" fill="#05060a"/>
+  <g font-family="monospace" font-size="40" opacity="0.9">
+    <text x="70"  y="180" fill="#f2e06b">OPEN</text>
+    <text x="330" y="150" fill="#9fe8dc">24H</text>
+    <text x="120" y="280" fill="#c85a4a">BAR</text>
+    <text x="360" y="300" fill="#4a5a8a">CAFE</text>
+  </g>
+  <rect y="340" width="600" height="60" fill="#1a1c24"/>
+  <text x="300" y="388" font-family="monospace" font-size="14" fill="#9fe8dc" text-anchor="middle" opacity="0.8">neon — placeholder</text>
+</svg>

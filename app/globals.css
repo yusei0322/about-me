@@ -203,6 +203,244 @@ body {
 }
 
 /* ================================================================
+   modal: Win95風モーダル(components/os/Modal.tsx)
+   ================================================================ */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200; /* メニューバー/タスクバー(100)より上 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: rgba(5, 6, 10, 0.55);
+}
+
+.modal__dialog {
+  width: min(560px, calc(100vw - var(--space-8)));
+  max-height: calc(100vh - var(--bar-height) * 2 - var(--space-8));
+  overflow: auto;
+}
+
+/* タイトルバー内の閉じるボタンは操作可能にする */
+.modal__close {
+  cursor: pointer;
+}
+
+/* 作品詳細(モーダル中身) */
+.work-detail__image {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-window-shadow);
+}
+
+.work-detail__description {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  line-height: 1.8;
+}
+
+.work-detail__meta {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-window-shadow);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.work-detail__meta-item {
+  padding: 2px 0;
+}
+
+/* ================================================================
+   works-explorer: sakuhin フォルダのアイコングリッド(/works)
+   ================================================================ */
+.works-explorer__lead {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+.works-explorer__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-4);
+}
+
+.works-explorer__icon-button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  color: var(--color-text);
+  border: 1px solid transparent;
+}
+
+.works-explorer__icon-button:hover,
+.works-explorer__icon-button:focus-visible {
+  background-color: var(--color-window-light);
+  box-shadow: var(--bevel-raised);
+  outline: none;
+}
+
+.works-explorer__thumb {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-window-shadow);
+  box-shadow: var(--bevel-sunken);
+}
+
+.works-explorer__filename {
+  font-size: var(--text-xs);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* ================================================================
+   hobby: 趣味ページ共通(app/hobby/[slug])
+   ================================================================ */
+.hobby__intro {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.hobby__hero {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-window-shadow);
+}
+
+.hobby__heading {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-titlebar);
+}
+
+.hobby__body {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  line-height: 1.8;
+}
+
+/* ---- ランキング型 ---- */
+.ranking {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ranking__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  text-align: left;
+  color: var(--color-text);
+  background-color: var(--color-window);
+  box-shadow: var(--bevel-raised);
+}
+
+.ranking__row:hover {
+  background-color: var(--color-window-light);
+}
+
+.ranking__row[aria-expanded="true"] {
+  box-shadow: var(--bevel-sunken);
+}
+
+.ranking__medal {
+  font-size: var(--text-lg);
+  min-width: 1.6em;
+  text-align: center;
+}
+
+.ranking__name {
+  flex: 1;
+  font-size: var(--text-base);
+}
+
+.ranking__toggle {
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+.ranking__note {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background-color: #ffffff;
+  box-shadow: var(--bevel-sunken);
+}
+
+/* ---- ギャラリー型 ---- */
+.gallery__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.gallery__filter {
+  padding: var(--space-1) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background-color: var(--color-window);
+  box-shadow: var(--bevel-raised);
+}
+
+.gallery__filter:hover {
+  background-color: var(--color-window-light);
+}
+
+.gallery__filter--active {
+  background-color: var(--color-titlebar);
+  color: var(--color-titlebar-text);
+  box-shadow: var(--bevel-sunken);
+}
+
+.gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.gallery__figure {
+  background-color: var(--color-window);
+  box-shadow: var(--bevel-raised);
+  overflow: hidden; /* ホバー拡大時に画像をはみ出させない */
+}
+
+.gallery__image {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* ホバーでわずかに拡大する演出（reduced-motion では reset.css が無効化） */
+  transition: transform 0.25s ease;
+}
+
+.gallery__figure:hover .gallery__image {
+  transform: scale(1.03);
+}
+
+.gallery__caption {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text);
+}
+
+@media (min-width: 640px) {
+  /* 広い画面ではメイン画像と紹介文を横並びにする */
+  .hobby__intro {
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+  }
+}
+
+/* ================================================================
    page-placeholder: 各ページ実装前の仮表示(土台の動作確認用)
    ================================================================ */
 .page-placeholder {

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="nature photo placeholder">
+  <rect width="600" height="400" fill="#9fc0d8"/>
+  <circle cx="480" cy="90" r="40" fill="#f2e06b"/>
+  <polygon points="0,400 180,180 340,400" fill="#0e7a6f"/>
+  <polygon points="220,400 400,150 600,400" fill="#0a5f56"/>
+  <rect y="360" width="600" height="40" fill="#5a4632"/>
+  <text x="300" y="388" font-family="monospace" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.85">nature — placeholder</text>
+</svg>
