@@ -107,3 +107,41 @@ export const notFound = {
   body: "指定されたページは存在しないか、移動または削除された可能性があります。",
   action: "デスクトップに戻る",
 } as const;
+
+/* ================================================================
+   TOP の一人称3D体験(ZaidOSプロトタイプ)で画面に描く文言。
+   canvas 2D の画面層(components/scene/drawScreen.ts)がここを読む。
+   ================================================================ */
+export const scene = {
+  /** 電源ON直後に流れる BIOS 行（"OK"/"FOUND" を含む行は緑で表示される） */
+  bootLines: [
+    "ZaidOS BIOS v1.998",
+    "Memory Test : 65536 KB OK",
+    "Detecting Designer ... FOUND: ZAIDO",
+    "Loading personality drivers ... OK",
+    "Starting ZaidOS ...",
+  ],
+  /** デスクトップ上のアイコン名 */
+  desktopIcons: ["jibun.txt", "sakuhin", "renraku"],
+  /** メモ帳(jibun.txt)を開いたときの本文 */
+  memoLines: [
+    "こんにちは。ざいどです。",
+    "デザインリードをしています。",
+    "2Dと3Dの境目をなくすのが好きです。",
+  ],
+  /** メモ帳ウィンドウのタイトルバー */
+  memoTitle: "jibun.txt - メモ帳",
+  /** 作品フォルダ内のファイル名 */
+  files: ["portfolio.exe", "voxel_world", "brand_kit", "???"],
+  /** 作品フォルダウィンドウのタイトルバー */
+  worksTitle: "sakuhin",
+  /** ラストのお別れダイアログ */
+  byeTitle: "ZaidOS",
+  byeMessage: "見てくれてありがとう。",
+  byeActions: "[ 連絡する ] [ もう一度 ]",
+  /** スクロールを促すヒント */
+  scrollHint: "▼ SCROLL",
+} as const;
+
+/** 画面層(drawScreen)へ渡すテキストの型 */
+export type SceneText = typeof scene;

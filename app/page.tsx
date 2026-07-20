@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import FirstPersonExperience from "@/components/scene/FirstPersonExperience";
 import { top } from "@/src/data/content";
 
 export const metadata: Metadata = {
@@ -8,10 +9,11 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <section className="page-placeholder page-placeholder--desktop">
-      <h1 className="page-placeholder__title">{top.heading}</h1>
-      <p className="page-placeholder__lead">{top.lead}</p>
-      <p className="page-placeholder__note">{top.note}</p>
-    </section>
+    <>
+      {/* 3D体験はssr:falseでクライアント描画のため、静的HTMLに残る見出しを
+          サーバー側(このページ)で視覚的に隠して置いておく */}
+      <h1 className="sr-only">{top.heading}</h1>
+      <FirstPersonExperience />
+    </>
   );
 }
