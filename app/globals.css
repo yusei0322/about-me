@@ -109,6 +109,100 @@ body {
 }
 
 /* ================================================================
+   about-memo: /about(jibun.txt)のメモ帳本文
+   メモ帳らしいプレーンな白い紙面 + 等幅フォントで淡々と表示する。
+   ================================================================ */
+.about-memo {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* 紙面: メモ帳の編集領域(白・沈んだ枠) */
+.about-memo__paper {
+  background-color: #ffffff;
+  color: var(--color-text);
+  box-shadow: var(--bevel-sunken);
+  border: 1px solid var(--color-window-shadow);
+  padding: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.9;
+}
+
+/* 画像: 紙面右上に小さく回り込ませる(メモに貼った写真の趣) */
+.about-memo__figure {
+  float: right;
+  width: 132px;
+  margin: 0 0 var(--space-4) var(--space-4);
+  text-align: center;
+}
+
+.about-memo__image {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-window-shadow);
+}
+
+.about-memo__caption {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.about-memo__section {
+  margin-bottom: var(--space-4);
+}
+
+/* 見出し行: メモ帳内の "# ラベル" */
+.about-memo__label {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-titlebar);
+}
+
+.about-memo__line {
+  overflow-wrap: break-word;
+}
+
+.about-memo__signature {
+  clear: both;
+  margin-top: var(--space-6);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-window-shadow);
+  color: var(--color-text-muted);
+}
+
+/* 点滅カーソル(タイプライターの余韻) */
+.about-memo__cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  margin-left: 4px;
+  vertical-align: text-bottom;
+  background-color: var(--color-text);
+  animation: about-memo-blink 1s step-end infinite;
+}
+
+@keyframes about-memo-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  /* モバイルでは写真の回り込みを解除して上に大きく置く */
+  .about-memo__figure {
+    float: none;
+    width: 160px;
+    margin: 0 auto var(--space-4);
+  }
+}
+
+/* ================================================================
    page-placeholder: 各ページ実装前の仮表示(土台の動作確認用)
    ================================================================ */
 .page-placeholder {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Window from "@/components/os/Window";
-import { pages } from "@/src/data/content";
+import { about, pages } from "@/src/data/content";
+import AboutMemo from "./AboutMemo";
 
 export const metadata: Metadata = {
   title: pages.about.title,
@@ -9,11 +10,8 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <Window title={pages.about.windowTitle}>
-      <div className="page-placeholder">
-        <h1 className="page-placeholder__title">{pages.about.heading}</h1>
-        <p className="page-placeholder__note">{pages.about.note}</p>
-      </div>
+    <Window title={about.windowTitle}>
+      <AboutMemo />
     </Window>
   );
 }
