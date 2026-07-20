@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="motion_study placeholder">
+  <rect width="800" height="500" fill="#2b2f3c"/>
+  <g fill="none" stroke="#9fe8dc" stroke-width="3">
+    <circle cx="150" cy="250" r="30" opacity="0.3"/>
+    <circle cx="260" cy="250" r="40" opacity="0.5"/>
+    <circle cx="390" cy="250" r="52" opacity="0.7"/>
+    <circle cx="540" cy="250" r="66" opacity="0.9"/>
+  </g>
+  <path d="M80,400 C240,300 400,460 720,340" fill="none" stroke="#f2e06b" stroke-width="3" opacity="0.8"/>
+  <text x="400" y="460" font-family="monospace" font-size="14" fill="#9fe8dc" text-anchor="middle" opacity="0.7">motion_study — placeholder</text>
+</svg>

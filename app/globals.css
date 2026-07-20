@@ -205,6 +205,162 @@ body {
 }
 
 /* ================================================================
+   works-preview: 3D体験(暗転)の下に続く「sakuhinプレビュー」スライダー
+   ・継ぎ目の工夫: 背景を夜色(--color-night)で連続させ、かつ z-index を
+     canvas(z-index:0)より上にして「上から夜色の面が滑り込む」ことで、
+     fixed の canvas を覆いながらシームレスに切り替える。
+   ================================================================ */
+.works-preview {
+  position: relative;
+  z-index: 1; /* fixed な scene__stage(z-index:0)の上に重ねて継ぎ目を隠す */
+  background-color: var(--color-night);
+  color: var(--color-text-invert);
+  padding: var(--space-12) var(--space-4);
+}
+
+/* 見出し帯: 既定は少し沈めておき、--in で浮かび上がらせる(橋渡し) */
+.works-preview__intro {
+  max-width: var(--content-max);
+  margin: 0 auto var(--space-8);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.works-preview__intro--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.works-preview__eyebrow {
+  font-size: var(--text-sm);
+  letter-spacing: 0.2em;
+  color: var(--color-desktop);
+}
+
+.works-preview__heading {
+  margin-top: var(--space-2);
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.works-preview__lead {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.works-preview__slider {
+  position: relative;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* トラック: 横スクロール + Scroll Snap。スクロールバーは隠す */
+.works-preview__track {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: var(--space-2);
+}
+
+.works-preview__track::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.works-preview__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+.works-preview__figure {
+  background-color: var(--color-window);
+  color: var(--color-text);
+  box-shadow: var(--bevel-raised), 4px 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.works-preview__image {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--color-window-shadow);
+}
+
+.works-preview__caption {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.works-preview__caption-title {
+  display: block;
+  font-weight: 700;
+  color: var(--color-titlebar);
+}
+
+/* Prev/Next ボタン: スライダー左右に浮かべる */
+.works-preview__controls {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  pointer-events: none; /* ボタン以外はスクロールを妨げない */
+}
+
+.works-preview__button {
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  font-size: var(--text-lg);
+  line-height: 1;
+  background-color: var(--color-window);
+  color: var(--color-text);
+  box-shadow: var(--bevel-raised);
+}
+
+.works-preview__button:hover {
+  background-color: var(--color-window-light);
+}
+
+.works-preview__button:active {
+  box-shadow: var(--bevel-sunken);
+}
+
+.works-preview__cta {
+  max-width: var(--content-max);
+  margin: var(--space-8) auto 0;
+  text-align: center;
+}
+
+.works-preview__cta-link {
+  display: inline-block;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
+  background-color: var(--color-window);
+  color: var(--color-text);
+  box-shadow: var(--bevel-raised);
+}
+
+.works-preview__cta-link:hover {
+  background-color: var(--color-window-light);
+}
+
+.works-preview__cta-link:active {
+  box-shadow: var(--bevel-sunken);
+}
+
+@media (max-width: 768px) {
+  /* モバイルではスライドを少しはみ出させて「続きがある」ことを示す */
+  .works-preview__slide {
+    flex-basis: 88%;
+  }
+}
+
+/* ================================================================
    not-found: 404「ファイルが見つかりません」ダイアログ
    ================================================================ */
 .not-found {

@@ -145,3 +145,62 @@ export const scene = {
 
 /** 画面層(drawScreen)へ渡すテキストの型 */
 export type SceneText = typeof scene;
+
+/* ================================================================
+   TOP 下部の「sakuhin プレビュー」セクション(通常のDOM)。
+   3D体験の暗転の下に続く。作品画像3点以上でTOP画像要件を満たす。
+   画像は暫定プレースホルダ(public/works/ に英語ケバブケース)で、
+   後で自作スクリーンショットに差し替える前提。
+   ================================================================ */
+export type WorkPreview = {
+  /** public/works/ 以下のファイル名(basePath は Image 側で付与) */
+  src: string;
+  /** 代替テキスト(必須) */
+  alt: string;
+  /** スライド内のキャプション見出し */
+  title: string;
+  /** キャプション本文 */
+  caption: string;
+};
+
+export const worksPreview = {
+  /** セクションの橋渡し帯・見出し */
+  eyebrow: "sakuhin // preview",
+  heading: "作品プレビュー",
+  lead: "画面の中で開いた sakuhin フォルダの中身を、少しだけ。",
+  /** 横スライダーに並べる作品(3点以上) */
+  items: [
+    {
+      src: "/works/placeholder-portfolio.svg",
+      alt: "ポートフォリオサイトのトップ画面のプレビュー（暫定プレースホルダ）",
+      title: "portfolio.exe",
+      caption: "このサイト自体。ZaidOS をテーマにした自己紹介。",
+    },
+    {
+      src: "/works/placeholder-voxel-world.svg",
+      alt: "ボクセルで作った3Dワールドのプレビュー（暫定プレースホルダ）",
+      title: "voxel_world",
+      caption: "three.js で組んだ小さな箱庭ワールド。",
+    },
+    {
+      src: "/works/placeholder-brand-kit.svg",
+      alt: "ブランドキット（配色とロゴ）のプレビュー（暫定プレースホルダ）",
+      title: "brand_kit",
+      caption: "配色・タイポ・ロゴをまとめたブランド設計。",
+    },
+    {
+      src: "/works/placeholder-motion-study.svg",
+      alt: "モーション習作のプレビュー（暫定プレースホルダ）",
+      title: "motion_study",
+      caption: "GSAP によるスクロール連動アニメーションの習作。",
+    },
+  ] satisfies WorkPreview[],
+  /** スライダー操作ボタンのラベル(スクリーンリーダー用) */
+  prevLabel: "前の作品へ",
+  nextLabel: "次の作品へ",
+  /** セクション末尾の /works 誘導 */
+  cta: {
+    href: "/works",
+    label: "sakuhin をすべて見る →",
+  },
+} as const;
