@@ -1,19 +1,11 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ================================================================
+   globals.css — 全ページ共通の基礎スタイルと OS シェル(ヘッダー/フッター)
+   ※ reset.css → tokens.css → globals.css の順に読み込まれる(layout.tsx)。
+   ※ 色・寸法は tokens.css の変数のみを参照する。
+   ※ クラス命名は BEM(block__element--modifier)で統一する。
+   ================================================================ */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html {
-  height: 100%;
-}
-
+/* ---- ベース ---- */
 html,
 body {
   max-width: 100vw;
@@ -21,29 +13,280 @@ body {
 }
 
 body {
-  min-height: 100%;
+  font-family: var(--font-mono);
+  color: var(--color-text-invert);
+  background-color: var(--color-night);
+}
+
+/* ================================================================
+   app-shell: ヘッダー(固定) / main / フッター(固定) の三層レイアウト
+   バーは上下に固定し、main はその高さぶんの余白を確保して重ならせない。
+   ================================================================ */
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-shell__main {
+  min-height: 100vh;
+  padding-top: var(--bar-height);
+  padding-bottom: var(--bar-height);
+}
+
+/* ================================================================
+   page-placeholder: 各ページ実装前の仮表示(土台の動作確認用)
+   ================================================================ */
+.page-placeholder {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.page-placeholder--desktop {
+  min-height: calc(100vh - var(--bar-height) * 2);
   display: flex;
   flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-desktop);
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+.page-placeholder__title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: 0.06em;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.page-placeholder__lead {
+  margin-top: var(--space-2);
+  font-size: var(--text-lg);
+  color: var(--color-accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+.page-placeholder__note {
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.page-placeholder--desktop .page-placeholder__note {
+  color: var(--color-text-invert);
+  opacity: 0.8;
+}
+
+/* ================================================================
+   menu-bar: OSメニューバー風の共通ヘッダー(画面上部に固定)
+   ================================================================ */
+.menu-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-menubar);
+  height: var(--bar-height);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 var(--space-4);
+  background-color: var(--color-window);
+  color: var(--color-text);
+  box-shadow: var(--bevel-raised);
+}
+
+.menu-bar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-titlebar);
+}
+
+.menu-bar__logo-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background-color: var(--color-titlebar);
+  color: var(--color-titlebar-text);
+  font-size: var(--text-sm);
+}
+
+/* ナビ: 右寄せ(margin-left:auto で押し出す) */
+.menu-bar__nav {
+  margin-left: auto;
+}
+
+.menu-bar__list {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.menu-bar__link {
+  display: inline-block;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  border: 1px solid transparent;
+}
+
+.menu-bar__link:hover {
+  background-color: var(--color-window-light);
+  box-shadow: var(--bevel-raised);
+}
+
+/* 現在ページ: 紺のタイトルバー色で「選択中」を表現 */
+.menu-bar__link--active {
+  background-color: var(--color-titlebar);
+  color: var(--color-titlebar-text);
+  box-shadow: var(--bevel-sunken);
+}
+
+.menu-bar__link--active:hover {
+  background-color: var(--color-titlebar);
+  color: var(--color-titlebar-text);
+}
+
+/* ハンバーガー: デスクトップ幅では隠す(モバイルで表示) */
+.menu-bar__toggle {
+  display: none;
+  margin-left: auto;
+  width: 34px;
+  height: 28px;
+  background-color: var(--color-window);
+  box-shadow: var(--bevel-raised);
+}
+
+.menu-bar__toggle-bars,
+.menu-bar__toggle-bars::before,
+.menu-bar__toggle-bars::after {
+  display: block;
+  width: 16px;
+  height: 2px;
+  margin: 0 auto;
+  background-color: var(--color-text);
+}
+
+.menu-bar__toggle-bars {
+  position: relative;
+}
+
+.menu-bar__toggle-bars::before,
+.menu-bar__toggle-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.menu-bar__toggle-bars::before {
+  top: -5px;
+}
+
+.menu-bar__toggle-bars::after {
+  top: 5px;
+}
+
+/* ================================================================
+   taskbar: タスクバー風の共通フッター(画面下部に固定)
+   ================================================================ */
+.taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-taskbar);
+  height: var(--bar-height);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 var(--space-4);
+  background-color: var(--color-window);
+  color: var(--color-text);
+  box-shadow: var(--bevel-raised);
+}
+
+.taskbar__windows {
+  display: flex;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* 開いているウィンドウ(=現在ページ)を押し込まれたタブとして表示 */
+.taskbar__window {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 60vw;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background-color: var(--color-window);
+  box-shadow: var(--bevel-raised);
+}
+
+.taskbar__window--active {
+  box-shadow: var(--bevel-sunken);
+  background-color: var(--color-window-light);
+}
+
+.taskbar__window-icon {
+  color: var(--color-titlebar);
+}
+
+/* 時計: 右端に沈み込んだ表示エリア(margin-left:auto で右寄せ) */
+.taskbar__clock {
+  margin-left: auto;
+  padding: var(--space-1) var(--space-3);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  background-color: var(--color-window);
+  box-shadow: var(--bevel-sunken);
+  min-width: 82px;
+  text-align: center;
+}
+
+/* ================================================================
+   レスポンシブ: 768px以下ではナビをドロワー化しハンバーガーで開閉
+   (メディアクエリ必須要件)
+   ================================================================ */
+@media (max-width: 768px) {
+  .menu-bar__toggle {
+    display: block;
+  }
+
+  /* ナビは既定で隠し、--open のときだけメニューバー直下に落とす */
+  .menu-bar__nav {
+    position: absolute;
+    top: var(--bar-height);
+    left: 0;
+    right: 0;
+    z-index: var(--z-menu-drawer);
+    margin-left: 0;
+    display: none;
+    background-color: var(--color-window);
+    box-shadow: var(--bevel-raised);
+  }
+
+  .menu-bar__nav--open {
+    display: block;
+  }
+
+  .menu-bar__list {
+    flex-direction: column;
+    gap: 0;
+    padding: var(--space-2);
+  }
+
+  .menu-bar__link {
+    display: block;
+    padding: var(--space-3);
+    font-size: var(--text-base);
+  }
+
+  /* モバイルでは長いタイトルの折り返しを抑えるため幅を広げる */
+  .taskbar__window {
+    max-width: 48vw;
   }
 }

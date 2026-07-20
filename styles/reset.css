@@ -1,0 +1,106 @@
+/* ================================================================
+   reset.css — 自前 modern reset
+   Josh Comeau / Andy Bell の modern reset を土台に、
+   ZaidOS（レトロOS風・等幅ベース）向けに整理したもの。
+   normalize系(見た目を残す)ではなく reset系(ゼロ起点)を採用し、
+   テーマCSSを styles/tokens.css + globals.css で完全に制御する。
+   ================================================================ */
+
+/* 1. box-sizing を全要素で border-box に統一する */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2. 既定の margin を全て除去（余白は自分で設計する） */
+* {
+  margin: 0;
+}
+
+/* 3. 高さの基準と、モバイルでのフォント自動拡大を無効化 */
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 4. body: 行間を読みやすく、アンチエイリアスを滑らかに */
+body {
+  min-height: 100%;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 5. メディア要素はブロック化し、親幅を超えさせない */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 6. フォーム要素はフォントを継承する（ブラウザ既定を上書き） */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* 7. 長い単語での横あふれを防ぐ */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* 8. 見出しの太字既定に頼らず、weight は個別指定できるようにする */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* 9. リストの記号・余白を除去（ナビ等で再設計する前提） */
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+/* 10. リンクは既定の色・下線を持たせず、テーマ側で指定する */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 11. ボタンの見た目をリセット（OS UIを自作するため） */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* 12. アニメーションを控えたいユーザーへの配慮 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

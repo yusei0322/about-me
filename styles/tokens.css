@@ -1,0 +1,75 @@
+/* ================================================================
+   tokens.css — デザイントークン（CSS変数）
+   配色は docs/prototype/ の ZaidOS プロトタイプを踏襲する。
+   ここで定義した変数のみを各所で参照し、色や寸法を直書きしない。
+   ================================================================ */
+
+:root {
+  /* ---- ブランドカラー（ZaidOSの中核色） ---- */
+  --color-desktop: #0e7a6f;        /* デスクトップのティール */
+  --color-desktop-dark: #0a5f56;   /* ティールの陰影 */
+  --color-window: #c0c0c0;         /* ウィンドウのグレー */
+  --color-window-light: #dfdfdf;   /* ウィンドウのハイライト面 */
+  --color-window-shadow: #808080;  /* ウィンドウの陰影・境界 */
+  --color-titlebar: #000080;       /* タイトルバーの紺 */
+  --color-titlebar-text: #ffffff;  /* タイトルバー上の文字 */
+
+  /* ---- 夜の部屋（TOPの3D背景トーン） ---- */
+  --color-night: #05060a;          /* 深夜の部屋の背景 */
+  --color-night-wall: #2b2f3c;     /* 壁 */
+  --color-night-floor: #1a1c24;    /* 床 */
+  --color-lamp: #ffc07a;           /* 電気スタンドの光 */
+
+  /* ---- アクセント・状態色 ---- */
+  --color-accent: #f2e06b;         /* 付箋の黄色（注目・警告） */
+  --color-boot-ok: #58d868;        /* BIOSのOK表示（成功） */
+  --color-file: #9ecbff;           /* ファイルアイコンの水色 */
+  --color-led: #46ff6e;            /* 電源LEDの緑 */
+
+  /* ---- テキスト ---- */
+  --color-text: #1a1a1a;           /* 本文（明るい面の上） */
+  --color-text-invert: #f4f4f4;    /* 暗い面の上の文字 */
+  --color-text-muted: #6a6a6a;     /* 補助テキスト */
+
+  /* ---- フォント ---- */
+  --font-mono: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo",
+    "DejaVu Sans Mono", "Courier New", monospace;
+  --font-ui: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", system-ui,
+    sans-serif;
+
+  /* ---- タイポグラフィスケール ---- */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.25rem;    /* 20px */
+  --text-xl: 1.75rem;    /* 28px */
+  --text-2xl: 2.5rem;    /* 40px */
+
+  /* ---- スペーシング（4pxグリッド） ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* ---- レイアウト寸法 ---- */
+  --bar-height: 40px;              /* メニューバー / タスクバーの高さ */
+  --content-max: 1080px;           /* コンテンツ最大幅 */
+  --radius: 2px;                   /* 角丸（レトロUIなので控えめ） */
+
+  /* ---- 立体感（Win95風のベベル） ---- */
+  --bevel-raised: inset -1px -1px 0 var(--color-window-shadow),
+    inset 1px 1px 0 var(--color-window-light);
+  --bevel-sunken: inset 1px 1px 0 var(--color-window-shadow),
+    inset -1px -1px 0 var(--color-window-light);
+
+  /* ---- z-index 階層 ---- */
+  --z-taskbar: 100;
+  --z-menubar: 100;
+  --z-menu-drawer: 90;
+
+  /* ---- レスポンシブの分岐点 ---- */
+  --breakpoint-mobile: 768px;
+}
