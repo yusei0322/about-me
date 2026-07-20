@@ -582,6 +582,13 @@ export const contact = {
   windowTitle: pages.contact.windowTitle,
   heading: "renraku",
   lead: "お仕事のご相談・ご感想など、お気軽にどうぞ。",
+  /** ページ上部の装飾イラスト（画像1点以上の要件を満たす） */
+  image: {
+    // TODO: 必要ならブランドに合う画像へ差し替える
+    src: "/contact/placeholder-mail.svg",
+    alt: "封筒のイラスト（renraku ページの装飾・暫定プレースホルダ）",
+    source: "own",
+  } satisfies ImageAsset,
   /** 静的サイトのため実送信されない旨の注記 */
   notice:
     "※ このサイトは静的サイトのデモです。入力チェックのみ行い、実際には送信されません。",

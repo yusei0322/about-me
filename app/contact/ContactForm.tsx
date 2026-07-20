@@ -1,8 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import Modal from "@/components/os/Modal";
 import { contact } from "@/src/data/content";
+
+// public/ 配下は basePath が自動付与されないため手動で連結する
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const { fields, validation, dialogs } = contact;
 
@@ -61,6 +65,13 @@ export default function ContactForm() {
 
   return (
     <div className="contact">
+      <Image
+        className="contact__image"
+        src={`${basePath}${contact.image.src}`}
+        alt={contact.image.alt}
+        width={480}
+        height={200}
+      />
       <p className="contact__lead">{contact.lead}</p>
 
       <form className="contact-form" onSubmit={handleSubmit} noValidate>

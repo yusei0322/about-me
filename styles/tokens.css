@@ -8,6 +8,7 @@
   /* ---- ブランドカラー（ZaidOSの中核色） ---- */
   --color-desktop: #0e7a6f;        /* デスクトップのティール */
   --color-desktop-dark: #0a5f56;   /* ティールの陰影 */
+  --color-desktop-bright: #38b0a3; /* 夜色の上で使う明るいティール(コントラスト確保) */
   --color-window: #c0c0c0;         /* ウィンドウのグレー */
   --color-window-light: #dfdfdf;   /* ウィンドウのハイライト面 */
   --color-window-shadow: #808080;  /* ウィンドウの陰影・境界 */
@@ -29,7 +30,7 @@
   /* ---- テキスト ---- */
   --color-text: #1a1a1a;           /* 本文（明るい面の上） */
   --color-text-invert: #f4f4f4;    /* 暗い面の上の文字 */
-  --color-text-muted: #6a6a6a;     /* 補助テキスト */
+  --color-text-muted: #4a4a4a;     /* 補助テキスト(ウィンドウ灰の上でAA確保) */
 
   /* ---- フォント ---- */
   --font-mono: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo",

@@ -43,9 +43,11 @@ export default function SiteFooter() {
         </span>
       </div>
 
-      <time className="taskbar__clock" suppressHydrationWarning>
+      {/* 動く壁掛け時計。特定日時への参照ではないため time 要素は使わず span。
+          (空の <time> は datetime 未指定だとHTML的に無効になるため) */}
+      <span className="taskbar__clock" suppressHydrationWarning>
         {clock}
-      </time>
+      </span>
     </footer>
   );
 }

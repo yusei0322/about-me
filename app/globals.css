@@ -444,6 +444,14 @@ body {
    contact: /contact(renraku)のお問い合わせフォーム
    Win95ダイアログ風。sunken なフィールドと raised なボタン。
    ================================================================ */
+.contact__image {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--color-window-shadow);
+}
+
 .contact__lead {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
@@ -747,7 +755,8 @@ body {
 .works-preview__eyebrow {
   font-size: var(--text-sm);
   letter-spacing: 0.2em;
-  color: var(--color-desktop);
+  /* 夜色背景の上なので明るいティールでコントラストを確保 */
+  color: var(--color-desktop-bright);
 }
 
 .works-preview__heading {

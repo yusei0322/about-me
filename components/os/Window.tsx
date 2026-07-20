@@ -34,14 +34,16 @@ export default function Window({
     .join(" ");
 
   return (
-    <section className={rootClass}>
+    // UI のウィンドウ枠。文書上のセクションではなく単なる枠なので div。
+    // タイトルはページ唯一の見出しとして h1 にする（各下層ページの h1 を兼ねる）。
+    <div className={rootClass}>
       <div className="os-window__titlebar">
-        <span className="os-window__title">
+        <h1 className="os-window__title">
           <span className="os-window__title-icon" aria-hidden="true">
             ▣
           </span>
           {title}
-        </span>
+        </h1>
         {/* 装飾用のウィンドウ操作ボタン（見た目のみ・操作はしない） */}
         <span className="os-window__controls" aria-hidden="true">
           <span className="os-window__control">_</span>
@@ -52,6 +54,6 @@ export default function Window({
         </span>
       </div>
       <div className="os-window__body">{children}</div>
-    </section>
+    </div>
   );
 }

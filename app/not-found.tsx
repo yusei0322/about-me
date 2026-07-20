@@ -17,7 +17,8 @@ export default function NotFound() {
             ⚠
           </p>
           <div className="not-found__text">
-            <h1 className="not-found__heading">{notFound.heading}</h1>
+            {/* ページの h1 は Window のタイトルバーが担うため、ここは p にする */}
+            <p className="not-found__heading">{notFound.heading}</p>
             <p className="not-found__message">{notFound.body}</p>
           </div>
         </div>
