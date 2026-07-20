@@ -39,7 +39,7 @@ export default function SiteFooter() {
           <span className="taskbar__window-icon" aria-hidden="true">
             ▣
           </span>
-          {current.windowTitle}
+          {current.taskbarTitle}
         </span>
       </div>
 

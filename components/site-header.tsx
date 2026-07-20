@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { nav, site } from "@/src/data/content";
+import { isNavActive, nav, site } from "@/src/data/content";
 
 /**
  * メニューバー風の共通ヘッダー。
@@ -45,7 +45,7 @@ export default function SiteHeader() {
       >
         <ul className="menu-bar__list">
           {nav.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = isNavActive(item, pathname);
             return (
               <li key={item.href} className="menu-bar__item">
                 <Link

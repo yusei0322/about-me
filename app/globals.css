@@ -30,6 +30,82 @@ body {
   min-height: 100vh;
   padding-top: var(--bar-height);
   padding-bottom: var(--bar-height);
+  /* 下層ページのウィンドウ背後・404 の背後に見えるデスクトップ面 */
+  background-color: var(--color-desktop);
+}
+
+/* ================================================================
+   os-window: Win95風の共通ウィンドウ枠(components/os/Window.tsx)
+   ================================================================ */
+.os-window {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-window);
+  border: 1px solid var(--color-window-shadow);
+  /* 外側の立体枠 + デスクトップに落ちるドロップシャドウ */
+  box-shadow: var(--bevel-raised), 4px 4px 0 rgba(0, 0, 0, 0.35);
+  color: var(--color-text);
+}
+
+/* 最大化: コンテンツ領域いっぱい(バー2本ぶんを除く)に広げる */
+.os-window--maximized {
+  margin: var(--space-4);
+  min-height: calc(100vh - var(--bar-height) * 2 - var(--space-8));
+}
+
+/* ダイアログ: 中央に浮かぶ小さめの窓(404 等) */
+.os-window--dialog {
+  width: min(440px, calc(100vw - var(--space-8)));
+}
+
+.os-window__titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--color-titlebar);
+  color: var(--color-titlebar-text);
+  font-size: var(--text-sm);
+  user-select: none;
+}
+
+.os-window__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.os-window__controls {
+  display: inline-flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.os-window__control {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 16px;
+  background-color: var(--color-window);
+  color: var(--color-text);
+  box-shadow: var(--bevel-raised);
+  font-size: var(--text-xs);
+  line-height: 1;
+}
+
+.os-window__control--close {
+  font-weight: 700;
+}
+
+.os-window__body {
+  flex: 1;
+  padding: var(--space-8) var(--space-4);
+  background-color: var(--color-window);
 }
 
 /* ================================================================
@@ -72,6 +148,63 @@ body {
 .page-placeholder--desktop .page-placeholder__note {
   color: var(--color-text-invert);
   opacity: 0.8;
+}
+
+/* ================================================================
+   not-found: 404「ファイルが見つかりません」ダイアログ
+   ================================================================ */
+.not-found {
+  min-height: calc(100vh - var(--bar-height) * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.not-found__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.not-found__icon {
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.not-found__heading {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.not-found__message {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.not-found__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-6);
+}
+
+/* 「デスクトップに戻る」= Win95風の押しボタン */
+.not-found__action {
+  padding: var(--space-2) var(--space-6);
+  font-size: var(--text-sm);
+  background-color: var(--color-window);
+  color: var(--color-text);
+  box-shadow: var(--bevel-raised);
+}
+
+.not-found__action:hover {
+  background-color: var(--color-window-light);
+}
+
+.not-found__action:active {
+  box-shadow: var(--bevel-sunken);
 }
 
 /* ================================================================

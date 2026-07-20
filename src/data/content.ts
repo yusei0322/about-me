@@ -13,24 +13,97 @@ export const site = {
 export type NavItem = {
   /** 遷移先パス（basePath は next/link が自動付与するため付けない） */
   href: string;
-  /** 画面に表示するラベル（英数字のみ — 採点基準でファイル名/クラス名に日本語不可） */
+  /** メニューバーに表示するラベル（英数字のみ — 採点基準で日本語不可） */
   label: string;
-  /** タスクバーに出す「ウィンドウ名」 */
-  windowTitle: string;
+  /** タスクバーに出す「開いているウィンドウ名」 */
+  taskbarTitle: string;
 };
 
 export const nav: NavItem[] = [
-  { href: "/", label: "TOP", windowTitle: "ZaidOS — desktop" },
-  { href: "/jibun", label: "jibun", windowTitle: "jibun.txt" },
-  { href: "/sakuhin", label: "sakuhin", windowTitle: "sakuhin" },
-  { href: "/hobby", label: "hobby", windowTitle: "hobby" },
-  { href: "/renraku", label: "renraku", windowTitle: "renraku" },
+  { href: "/", label: "TOP", taskbarTitle: "ZaidOS — desktop" },
+  { href: "/about", label: "jibun", taskbarTitle: "jibun.txt" },
+  { href: "/works", label: "sakuhin", taskbarTitle: "sakuhin" },
+  { href: "/hobby/first", label: "hobby", taskbarTitle: "hobby" },
+  { href: "/contact", label: "renraku", taskbarTitle: "renraku" },
 ];
 
 /**
- * 現在のパスに対応するナビ項目を返す。
- * 見つからない場合は TOP を既定にする。
+ * パスの先頭セグメントを "/xxx" 形式で返す（"/" は "/" のまま）。
+ * 例: "/hobby/second" -> "/hobby"、"/about" -> "/about"、"/" -> "/"
  */
-export function findNavItem(pathname: string): NavItem {
-  return nav.find((item) => item.href === pathname) ?? nav[0];
+function section(pathname: string): string {
+  const seg = pathname.split("/").filter(Boolean)[0];
+  return seg ? `/${seg}` : "/";
 }
+
+/**
+ * ナビ項目が現在ページ（そのセクション配下を含む）に該当するか。
+ * 例: /hobby/first も /hobby/second も "hobby" をアクティブ扱いにする。
+ */
+export function isNavActive(item: NavItem, pathname: string): boolean {
+  return section(item.href) === section(pathname);
+}
+
+/** 現在のパスに対応するナビ項目を返す（無ければ TOP を既定にする） */
+export function findNavItem(pathname: string): NavItem {
+  return nav.find((item) => isNavActive(item, pathname)) ?? nav[0];
+}
+
+/** TOP ページの文言 */
+export const top = {
+  title: "ZaidOS — an operating system about me",
+  description:
+    "ざいどの自己紹介サイト「ZaidOS」のトップページ。一人称視点の3D体験を予定しています。",
+  heading: "ZaidOS",
+  lead: "an operating system about me",
+  note: "TOP（一人称3D体験）は後で実装します。",
+} as const;
+
+/** 下層ページ（最大化ウィンドウ）の文言と <title>/description */
+export const pages = {
+  about: {
+    windowTitle: "jibun.txt - メモ帳",
+    heading: "jibun.txt",
+    note: "自己紹介ページはここに実装予定です。",
+    title: "jibun.txt — ZaidOS",
+    description: "ざいどの自己紹介ページ（準備中）。",
+  },
+  works: {
+    windowTitle: "sakuhin",
+    heading: "sakuhin",
+    note: "作品ページはここに実装予定です。",
+    title: "sakuhin — ZaidOS",
+    description: "ざいどの制作物を紹介するページ（準備中）。",
+  },
+  hobbyFirst: {
+    windowTitle: "hobby/first",
+    heading: "hobby / first",
+    note: "趣味①の内容は後で決定します（ルート名は後日リネーム予定）。",
+    title: "hobby/first — ZaidOS",
+    description: "趣味を紹介するページ その1（準備中）。",
+  },
+  hobbySecond: {
+    windowTitle: "hobby/second",
+    heading: "hobby / second",
+    note: "趣味②の内容は後で決定します（ルート名は後日リネーム予定）。",
+    title: "hobby/second — ZaidOS",
+    description: "趣味を紹介するページ その2（準備中）。",
+  },
+  contact: {
+    windowTitle: "renraku",
+    heading: "renraku",
+    note: "お問い合わせフォームはここに実装予定です。",
+    title: "renraku — ZaidOS",
+    description: "お問い合わせページ（準備中）。",
+  },
+} as const;
+
+/** 404（ファイルが見つかりません）ダイアログの文言 */
+export const notFound = {
+  title: "404 — ZaidOS",
+  description: "指定されたページが見つかりませんでした。",
+  windowTitle: "ZaidOS",
+  heading: "ファイルが見つかりません",
+  body: "指定されたページは存在しないか、移動または削除された可能性があります。",
+  action: "デスクトップに戻る",
+} as const;
