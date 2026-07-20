@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZaidOS — 一人称プロトタイプ</title>
+<style>
+  /* ================================================================
+     案A発展版: 一人称デスク視点
+     深夜の部屋。あなた(訪問者)が古いPCの前に座っている。
+     スクロール = あなたの行動の再生ヘッド。
+       電源ON → 画面に顔を近づける → 読む → コーヒーに目をやる
+       → 作品フォルダを開く → 画面が暗転して夜が終わる
+     構造:
+       [3D層]   部屋・机・モニタをthree.jsで描く
+       [画面層] ZaidOSはcanvas 2Dで描き、テクスチャとしてモニタに貼る
+       [GSAP層] スクロールで「S(画面の状態)」と「rig(カメラ)」の
+                数値を動かすだけ
+     ================================================================ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { height: 800vh; background: #000; }
+  canvas#stage { position: fixed; inset: 0; display: block; }
+  .hint {
+    position: fixed; bottom: 3vh; left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,.5);
+    font: 11px monospace;
+    letter-spacing: .25em;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div class="hint">▼ SCROLL</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ================================================================
+   [1] 画面の状態 S と カメラの状態 rig
+   GSAPが動かすのはこの2つのオブジェクトの数値だけ。
+   3D側はこれを毎フレーム読んで描くだけ。役割を完全に分ける。
+   ================================================================ */
+const S = {
+  boot: 0,      // BIOS行の進行 0→1
+  desk: 0,      // デスクトップのフェードイン
+  icons: 0,     // アイコンの出現
+  curA: 0,      // カーソルの不透明度
+  cx: 420, cy: 300,   // カーソル座標(画面キャンバス座標系)
+  click: 1,     // クリック時の縮み
+  winMe: 0, meLines: 0,     // メモ帳ウィンドウと本文
+  winWorks: 0, files: 0,    // 作品フォルダと中身
+  fade: 0, bye: 0,          // 暗転とお別れダイアログ
+  glow: 0,      // 画面がどれだけ部屋を照らすか
+  typing: 0,    // キーボードが打鍵されるか
+  lamp: 1,      // 電気スタンドの明るさ倍率
+};
+const rig = {
+  cx: 0.9, cy: 1.5, cz: 2.6,     // カメラ位置(部屋を見回す位置から開始)
+  lx: -0.55, ly: 1.05, lz: 0,    // 注視点(最初は電気スタンドの方)
+};
+
+/* ================================================================
+   [2] 3D層: 深夜の部屋を組む
+   ================================================================ */
+const canvas3d = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05060a);
+scene.fog = new THREE.Fog(0x05060a, 4, 10);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 50);
+
+/* ---- 照明: 弱い環境光 + 電気スタンド + 画面の光 ---- */
+scene.add(new THREE.AmbientLight(0x2a3550, 0.5));
+const lampLight = new THREE.PointLight(0xffc07a, 1.0, 5);
+lampLight.position.set(-0.6, 1.25, 0.15);
+scene.add(lampLight);
+/* 画面の光。S.glowで強くなる。色は画面の内容に合わせて後で変える */
+const screenLight = new THREE.PointLight(0x9fe8dc, 0, 3.5);
+screenLight.position.set(0, 1.2, 0.7);
+scene.add(screenLight);
+
+/* ---- 部屋 ---- */
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x2b2f3c, roughness: 1 });
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshStandardMaterial({ color: 0x1a1c24, roughness: 1 }));
+floor.rotation.x = -Math.PI / 2;
+scene.add(floor);
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(12, 5), wallMat);
+backWall.position.set(0, 2.5, -1.0);
+scene.add(backWall);
+/* 壁のポスター(発展案2への布石。今は飾りの板) */
+const poster = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.7),
+  new THREE.MeshStandardMaterial({ color: 0x4a5a8a, roughness: 0.9 }));
+poster.position.set(-1.1, 1.9, -0.99);
+poster.rotation.z = 0.03;
+scene.add(poster);
+
+/* ---- 机 ---- */
+const woodMat = new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: 0.85 });
+const deskTop = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.06, 0.95), woodMat);
+deskTop.position.set(0, 0.72, 0);
+scene.add(deskTop);
+[[-0.85, -0.4], [0.85, -0.4], [-0.85, 0.4], [0.85, 0.4]].forEach(([x, z]) => {
+  const leg = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.7, 0.07), woodMat);
+  leg.position.set(x, 0.35, z);
+  scene.add(leg);
+});
+
+/* ---- 古いPC(ベージュの塊感が命) ---- */
+const beige = new THREE.MeshStandardMaterial({ color: 0xd6cbb4, roughness: 0.7 });
+const monitor = new THREE.Group();
+const bezel = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.8, 0.55), beige);
+monitor.add(bezel);
+const neck = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.3), beige);
+neck.position.y = -0.46;
+monitor.add(neck);
+/* 電源LED */
+const led = new THREE.Mesh(new THREE.CircleGeometry(0.012, 12),
+  new THREE.MeshBasicMaterial({ color: 0x2a1010 }));
+led.position.set(0.4, -0.33, 0.276);
+monitor.add(led);
+/* 付箋(黄色)。ラストで意味を持たせられる小道具 */
+const postit = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 0.09),
+  new THREE.MeshStandardMaterial({ color: 0xf2e06b, roughness: 1 }));
+postit.position.set(-0.44, 0.2, 0.276);
+postit.rotation.z = -0.15;
+monitor.add(postit);
+monitor.position.set(0, 1.24, -0.18);
+scene.add(monitor);
+
+/* ---- 画面: canvas 2D をテクスチャとして貼る ----
+   ここがこのプロトタイプの核。ZaidOSの中身は[3]で描く */
+const scr = document.createElement("canvas");
+scr.width = 512; scr.height = 384;
+const sctx = scr.getContext("2d");
+const screenTex = new THREE.CanvasTexture(scr);
+const screenMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(0.82, 0.62),
+  new THREE.MeshBasicMaterial({ map: screenTex }) // Basic=自発光する画面
+);
+screenMesh.position.set(0, 0.01, 0.281);
+monitor.add(screenMesh);
+
+/* ---- キーボード(打鍵アニメ用にキーを配列で持つ) ---- */
+const kbBase = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.035, 0.26), beige);
+kbBase.position.set(0, 0.77, 0.42);
+kbBase.rotation.x = 0.06;
+scene.add(kbBase);
+const keys = [];
+const keyMat = new THREE.MeshStandardMaterial({ color: 0xbdb29a, roughness: 0.6 });
+for (let r = 0; r < 4; r++) {
+  for (let c = 0; c < 11; c++) {
+    const k = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.02, 0.045), keyMat);
+    k.position.set(-0.3 + c * 0.06, 0.795, 0.335 + r * 0.055);
+    k.userData.restY = k.position.y;
+    scene.add(k);
+    keys.push(k);
+  }
+}
+
+/* ---- コーヒー(途中で視線が向かう先) ---- */
+const mug = new THREE.Group();
+const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.12, 20),
+  new THREE.MeshStandardMaterial({ color: 0xc85a4a, roughness: 0.5 }));
+mug.add(cup);
+const handle = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.01, 8, 16),
+  cup.material);
+handle.position.x = 0.06; handle.rotation.y = Math.PI / 2;
+mug.add(handle);
+mug.position.set(0.58, 0.81, 0.32);
+scene.add(mug);
+/* 湯気: 上昇するパーティクル */
+const steamGeo = new THREE.BufferGeometry();
+const steamPos = new Float32Array(30 * 3);
+for (let i = 0; i < 30; i++) {
+  steamPos[i*3] = (Math.random()-0.5) * 0.04;
+  steamPos[i*3+1] = Math.random() * 0.3;
+  steamPos[i*3+2] = (Math.random()-0.5) * 0.04;
+}
+steamGeo.setAttribute("position", new THREE.BufferAttribute(steamPos, 3));
+const steam = new THREE.Points(steamGeo,
+  new THREE.PointsMaterial({ color: 0xffffff, size: 0.012, transparent: true, opacity: 0.25 }));
+steam.position.copy(mug.position).y += 0.08;
+scene.add(steam);
+
+/* ---- 空気中の埃(画面の光に浮かぶと雰囲気が出る) ---- */
+const dustGeo = new THREE.BufferGeometry();
+const dustPos = new Float32Array(120 * 3);
+for (let i = 0; i < 120; i++) {
+  dustPos[i*3] = (Math.random()-0.5) * 3;
+  dustPos[i*3+1] = 0.6 + Math.random() * 1.6;
+  dustPos[i*3+2] = -0.5 + Math.random() * 2.5;
+}
+dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+const dust = new THREE.Points(dustGeo,
+  new THREE.PointsMaterial({ color: 0xaabbcc, size: 0.008, transparent: true, opacity: 0.35 }));
+scene.add(dust);
+
+/* ================================================================
+   [3] 画面層: ZaidOSをcanvas 2Dで描く
+   Sの数値を読んで、毎フレーム描き直すだけの関数
+   ================================================================ */
+const BOOT_LINES = [
+  "ZaidOS BIOS v1.998",
+  "Memory Test : 65536 KB OK",
+  "Detecting Designer ... FOUND: ZAIDO",
+  "Loading personality drivers ... OK",
+  "Starting ZaidOS ...",
+];
+const ME_LINES = ["こんにちは。ざいどです。", "デザインリードをしています。", "2Dと3Dの境目をなくすのが好きです。"];
+const FILES = ["portfolio.exe", "voxel_world", "brand_kit", "???"];
+
+function win95(x, y, w, h, title, alpha) {
+  sctx.globalAlpha = alpha;
+  sctx.fillStyle = "#c0c0c0"; sctx.fillRect(x, y, w, h);
+  sctx.strokeStyle = "#fff"; sctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+  sctx.fillStyle = "#000080"; sctx.fillRect(x + 3, y + 3, w - 6, 20);
+  sctx.fillStyle = "#fff"; sctx.font = "12px monospace";
+  sctx.fillText(title, x + 9, y + 17);
+  sctx.fillText("×", x + w - 16, y + 17);
+  sctx.globalAlpha = 1;
+}
+
+function drawScreen() {
+  sctx.globalAlpha = 1;
+  sctx.fillStyle = "#000";
+  sctx.fillRect(0, 0, 512, 384);
+
+  /* BIOS */
+  if (S.boot > 0 && S.desk < 1) {
+    sctx.font = "15px monospace";
+    BOOT_LINES.forEach((line, i) => {
+      const a = Math.max(0, Math.min(1, S.boot * 5 - i));
+      sctx.globalAlpha = a * (1 - S.desk);
+      sctx.fillStyle = line.includes("OK") || line.includes("FOUND") ? "#58d868" : "#b8b8b8";
+      sctx.fillText(line, 30, 60 + i * 34);
+    });
+    sctx.globalAlpha = 1;
+  }
+
+  /* デスクトップ */
+  if (S.desk > 0) {
+    sctx.globalAlpha = S.desk;
+    sctx.fillStyle = "#0e7a6f";
+    sctx.fillRect(0, 0, 512, 384);
+    sctx.globalAlpha = 1;
+
+    /* アイコン */
+    const icons = ["jibun.txt", "sakuhin", "renraku"];
+    icons.forEach((name, i) => {
+      const a = Math.max(0, Math.min(1, S.icons * 3 - i));
+      if (a <= 0) return;
+      sctx.globalAlpha = a * S.desk;
+      const y = 55 + i * 85;
+      sctx.fillStyle = i === 0 ? "#ffffff" : "#ffe9a8";
+      sctx.fillRect(38, y, 36, 30);
+      sctx.strokeStyle = "#111"; sctx.strokeRect(38, y, 36, 30);
+      sctx.fillStyle = "#fff"; sctx.font = "11px monospace";
+      sctx.fillText(name, 30, y + 45);
+    });
+    sctx.globalAlpha = 1;
+
+    /* メモ帳 */
+    if (S.winMe > 0) {
+      win95(120, 48, 310, 170, "jibun.txt - メモ帳", S.winMe);
+      sctx.font = "15px sans-serif";
+      ME_LINES.forEach((line, i) => {
+        const a = Math.max(0, Math.min(1, S.meLines * 3 - i));
+        sctx.globalAlpha = a * S.winMe;
+        sctx.fillStyle = "#111";
+        sctx.fillText(line, 138, 100 + i * 34);
+      });
+      sctx.globalAlpha = 1;
+    }
+
+    /* 作品フォルダ */
+    if (S.winWorks > 0) {
+      win95(140, 195, 330, 140, "sakuhin", S.winWorks);
+      FILES.forEach((name, i) => {
+        const a = Math.max(0, Math.min(1, S.files * 4 - i));
+        sctx.globalAlpha = a * S.winWorks;
+        const x = 160 + i * 78;
+        sctx.fillStyle = "#9ecbff"; sctx.fillRect(x, 232, 34, 28);
+        sctx.strokeStyle = "#111"; sctx.strokeRect(x, 232, 34, 28);
+        sctx.fillStyle = "#111"; sctx.font = "10px monospace";
+        sctx.fillText(name, x - 8, 278);
+      });
+      sctx.globalAlpha = 1;
+    }
+
+    /* カーソル(幽霊改め、あなたの手) */
+    if (S.curA > 0) {
+      sctx.globalAlpha = S.curA;
+      sctx.save();
+      sctx.translate(S.cx, S.cy);
+      sctx.scale(S.click, S.click);
+      sctx.fillStyle = "#fff";
+      sctx.strokeStyle = "#000";
+      sctx.beginPath();
+      sctx.moveTo(0, 0); sctx.lineTo(0, 17); sctx.lineTo(11, 11);
+      sctx.closePath(); sctx.fill(); sctx.stroke();
+      sctx.restore();
+      sctx.globalAlpha = 1;
+    }
+  }
+
+  /* 暗転とお別れ */
+  if (S.fade > 0) {
+    sctx.globalAlpha = S.fade;
+    sctx.fillStyle = "#000"; sctx.fillRect(0, 0, 512, 384);
+    sctx.globalAlpha = 1;
+  }
+  if (S.bye > 0) {
+    win95(126, 135, 260, 105, "ZaidOS", S.bye);
+    sctx.globalAlpha = S.bye;
+    sctx.fillStyle = "#111"; sctx.font = "14px sans-serif";
+    sctx.fillText("見てくれてありがとう。", 165, 185);
+    sctx.font = "12px monospace";
+    sctx.fillText("[ 連絡する ] [ もう一度 ]", 158, 215);
+    sctx.globalAlpha = 1;
+  }
+
+  /* CRTの走査線(テクスチャに焼き込む) */
+  sctx.globalAlpha = 0.12;
+  sctx.fillStyle = "#000";
+  for (let y = 0; y < 384; y += 4) sctx.fillRect(0, y, 512, 1.5);
+  sctx.globalAlpha = 1;
+
+  screenTex.needsUpdate = true;
+}
+
+/* ================================================================
+   [4] 描画ループ: 数値を読んで反映するだけ
+   ================================================================ */
+const clock = new THREE.Clock();
+const mouse = { x: 0, y: 0 };
+addEventListener("pointermove", (e) => {
+  mouse.x = (e.clientX / innerWidth - 0.5);
+  mouse.y = (e.clientY / innerHeight - 0.5);
+});
+
+function render() {
+  const t = clock.getElapsedTime();
+
+  drawScreen();
+
+  /* 照明をSに追従させる */
+  screenLight.intensity = S.glow * 1.6;
+  lampLight.intensity = S.lamp;
+  led.material.color.setHex(S.glow > 0.03 ? 0x46ff6e : 0x2a1010);
+
+  /* 打鍵: typing中はランダムなキーが沈み、バネで戻る */
+  if (S.typing > 0.5 && Math.random() < 0.25) {
+    const k = keys[(Math.random() * keys.length) | 0];
+    k.position.y = k.userData.restY - 0.012;
+  }
+  keys.forEach(k => {
+    k.position.y += (k.userData.restY - k.position.y) * 0.25;
+  });
+
+  /* 湯気は上昇してループ */
+  const sp = steam.geometry.attributes.position;
+  for (let i = 0; i < 30; i++) {
+    sp.array[i*3+1] += 0.0012;
+    if (sp.array[i*3+1] > 0.3) sp.array[i*3+1] = 0;
+  }
+  sp.needsUpdate = true;
+
+  /* 埃はゆっくり漂う */
+  dust.rotation.y = t * 0.02;
+
+  /* カメラ: rig + 呼吸(上下の微揺れ) + マウス視差
+     「本当に人が座っている」感はこの2つの微細な動きで生まれる */
+  camera.position.set(
+    rig.cx + mouse.x * 0.04,
+    rig.cy + Math.sin(t * 1.1) * 0.008 + mouse.y * -0.03,
+    rig.cz
+  );
+  camera.lookAt(rig.lx + mouse.x * 0.12, rig.ly - mouse.y * 0.08, rig.lz);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
+}
+function resize() {
+  renderer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize);
+resize();
+render();
+
+/* ================================================================
+   [5] GSAP層: 振付表
+   ================================================================ */
+const tl = gsap.timeline({
+  scrollTrigger: {
+    trigger: document.body,
+    start: "top top",
+    end: "bottom bottom",
+    scrub: 0.8,
+  }
+});
+function click() {
+  tl.to(S, { click: 0.7, duration: 0.05 }).to(S, { click: 1, duration: 0.05 })
+    .to(S, { click: 0.7, duration: 0.05 }).to(S, { click: 1, duration: 0.05 });
+}
+
+/* 1. 部屋を見回す → 視線がモニタに定まる */
+tl.to(rig, { lx: 0, ly: 1.22, lz: -0.1, duration: 1, ease: "power2.inOut" });
+tl.to({}, { duration: 0.3 });
+
+/* 2. 電源ON。BIOSが流れ、キーボードを叩き、画面が部屋を照らし始める */
+tl.to(S, { glow: 0.35, duration: 0.3 });
+tl.to(S, { boot: 1, typing: 1, duration: 1.2 }, "<");
+tl.to({}, { duration: 0.3 });
+
+/* 3. 顔を画面に近づける(一人称の「読む姿勢」) */
+tl.to(rig, { cx: 0, cy: 1.3, cz: 1.15, duration: 1.2, ease: "power2.inOut" }, "<");
+tl.to(S, { typing: 0, duration: 0.1 });
+
+/* 4. デスクトップ起動。部屋がティール色に染まる */
+tl.to(S, { desk: 1, glow: 1, duration: 0.6 });
+tl.to(S, { icons: 1, duration: 0.6 });
+
+/* 5. jibun.txt を開いて読む */
+tl.to(S, { curA: 1, duration: 0.2 });
+tl.to(S, { cx: 56, cy: 70, duration: 0.7, ease: "power2.inOut" });
+click();
+tl.to(S, { winMe: 1, duration: 0.4 });
+tl.to(S, { meLines: 1, typing: 1, duration: 1.0 });
+tl.to(S, { typing: 0, duration: 0.1 });
+
+/* 6. コーヒーに目をやる(一人称ならではの「間」) */
+tl.to(rig, { lx: 0.58, ly: 0.9, lz: 0.32, cx: 0.15, duration: 0.8, ease: "power2.inOut" });
+tl.to({}, { duration: 0.4 });   // 一口飲んでいる時間
+tl.to(rig, { lx: 0, ly: 1.22, lz: -0.1, cx: 0, duration: 0.8, ease: "power2.inOut" });
+
+/* 7. sakuhin フォルダを開く */
+tl.to(S, { cx: 56, cy: 155, duration: 0.7, ease: "power2.inOut" });
+click();
+tl.to(S, { winWorks: 1, duration: 0.4 });
+tl.to(S, { files: 1, duration: 0.8 });
+tl.to({}, { duration: 0.5 });
+
+/* 8. 夜が終わる。椅子を引いて離れ、スタンドを消し、画面だけが灯る */
+tl.to(S, { fade: 0.75, duration: 0.5 });
+tl.to(S, { bye: 1, duration: 0.4 });
+tl.to(rig, { cx: 0.5, cy: 1.5, cz: 2.4, duration: 1.4, ease: "power2.inOut" }, "<");
+tl.to(S, { lamp: 0.12, glow: 0.5, duration: 1.0 }, "<+=0.3");
+tl.to({}, { duration: 0.4 });
+</script>
+</body>
+</html>
